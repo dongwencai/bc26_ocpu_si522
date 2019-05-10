@@ -98,6 +98,12 @@ static void spi_init(void)
 //=====================================================================================
 void si522_reset(void)
 {
+	Ql_GPIO_Init(PINNAME_GPIO4, PINDIRECTION_OUT, PINLEVEL_HIGH, PINPULLSEL_PULLUP);
+	Ql_Sleep(1);
+	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_LOW);
+	Ql_Sleep(1);
+	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_HIGH);
+
 //  NZ3801_RST_LOW();
 //  delay_us(1);
 //
@@ -107,6 +113,7 @@ void si522_reset(void)
   si522_write(CommandReg,PCD_RESETPHASE);
   si522_write(CommandReg,PCD_RESETPHASE);
 //  delay_us(1);
+	Ql_Sleep(1);
 
   si522_write(ModeReg,0x3D);            
   si522_write(TReloadRegL,30);
@@ -116,6 +123,7 @@ void si522_reset(void)
   si522_write(TxAutoReg,0x40);
 	
   PcdAntennaOff();
+	Ql_Sleep(1);
 //  delay_us(1);
   PcdAntennaOn();
 

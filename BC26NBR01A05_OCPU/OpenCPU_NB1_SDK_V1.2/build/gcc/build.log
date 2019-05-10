@@ -19,3 +19,73 @@ custom/main.c: At top level:
 custom/main.c:73:13: warning: 'delay_ms' defined but not used [-Wunused-function]
  static void delay_ms(uint32_t ms)
              ^
+In file included from drivers/nfc/si522.c:7:0:
+drivers/nfc/nfc.h:15:2: warning: function declaration isn't a prototype [-Wstrict-prototypes]
+  int8_t (*init)();
+  ^
+drivers/nfc/si522.c:22:41: warning: backslash and newline separated by space [enabled by default]
+  Ql_sprintf(buffer, fmt, ##__VA_ARGS__);\ 
+ ^
+drivers/nfc/si522.c: In function 'si522_reset':
+drivers/nfc/si522.c:125:3: warning: implicit declaration of function 'PcdAntennaOff' [-Wimplicit-function-declaration]
+   PcdAntennaOff();
+   ^
+drivers/nfc/si522.c:128:3: warning: implicit declaration of function 'PcdAntennaOn' [-Wimplicit-function-declaration]
+   PcdAntennaOn();
+   ^
+drivers/nfc/si522.c: In function 'si522_init':
+drivers/nfc/si522.c:134:10: warning: unused variable 'value' [-Wunused-variable]
+  uint8_t value = 0;
+          ^
+drivers/nfc/si522.c:133:10: warning: unused variable 'count' [-Wunused-variable]
+  uint8_t count = 0;
+          ^
+drivers/nfc/si522.c: In function 'si522_card_authent':
+drivers/nfc/si522.c:317:3: warning: passing argument 5 of 'si522_communication' from incompatible pointer type [enabled by default]
+   status = si522_communication(PCD_AUTHENT, nfc_tx_buf, 12, nfc_tx_buf, &len);
+   ^
+drivers/nfc/si522.c:26:8: note: expected 'u32 *' but argument is of type 'uint8_t *'
+ int8_t si522_communication(uint8_t Command, 
+        ^
+drivers/nfc/si522.c: In function 'si522_card_block_write':
+drivers/nfc/si522.c:335:3: warning: passing argument 5 of 'si522_communication' from incompatible pointer type [enabled by default]
+   status = si522_communication(PCD_TRANSCEIVE,nfc_tx_buf,4,nfc_tx_buf,&len);
+   ^
+drivers/nfc/si522.c:26:8: note: expected 'u32 *' but argument is of type 'uint8_t *'
+ int8_t si522_communication(uint8_t Command, 
+        ^
+drivers/nfc/si522.c:347:5: warning: passing argument 5 of 'si522_communication' from incompatible pointer type [enabled by default]
+     status = si522_communication(PCD_TRANSCEIVE,nfc_tx_buf,18,nfc_tx_buf,&len);
+     ^
+drivers/nfc/si522.c:26:8: note: expected 'u32 *' but argument is of type 'uint8_t *'
+ int8_t si522_communication(uint8_t Command, 
+        ^
+drivers/nfc/si522.c: In function 'si522_card_block_read':
+drivers/nfc/si522.c:366:3: warning: passing argument 5 of 'si522_communication' from incompatible pointer type [enabled by default]
+   status = si522_communication(PCD_TRANSCEIVE,nfc_tx_buf,4,nfc_tx_buf,&len);
+   ^
+drivers/nfc/si522.c:26:8: note: expected 'u32 *' but argument is of type 'uint8_t *'
+ int8_t si522_communication(uint8_t Command, 
+        ^
+drivers/nfc/si522.c: At top level:
+drivers/nfc/si522.c:510:6: warning: function declaration isn't a prototype [-Wstrict-prototypes]
+ void PcdAntennaOn()
+      ^
+drivers/nfc/si522.c:510:6: warning: conflicting types for 'PcdAntennaOn' [enabled by default]
+drivers/nfc/si522.c:128:3: note: previous implicit declaration of 'PcdAntennaOn' was here
+   PcdAntennaOn();
+   ^
+drivers/nfc/si522.c:519:6: warning: function declaration isn't a prototype [-Wstrict-prototypes]
+ void PcdAntennaOff()
+      ^
+drivers/nfc/si522.c:519:6: warning: conflicting types for 'PcdAntennaOff' [enabled by default]
+drivers/nfc/si522.c:125:3: note: previous implicit declaration of 'PcdAntennaOff' was here
+   PcdAntennaOff();
+   ^
+drivers/nfc/si522.c:525:2: warning: initialization from incompatible pointer type [enabled by default]
+  si522_init,
+  ^
+drivers/nfc/si522.c:525:2: warning: (near initialization for 'si522.init') [enabled by default]
+drivers/nfc/si522.c:63:13: warning: 'spi_init' defined but not used [-Wunused-function]
+ static void spi_init(void)
+             ^
