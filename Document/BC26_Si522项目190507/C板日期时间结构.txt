@@ -1,0 +1,18 @@
+struct tagYMDHMSBit
+{
+    unsigned char bYear:6;  //年，表示4位数年的最后两位，前面两位缺省为20，即2000-2064
+    unsigned char bMonth:4; //月
+    unsigned char bDay:5;   //日
+    unsigned char bHour:5;  //时
+    unsigned char bMinute:6;//分
+    unsigned char bSecond:6;//秒
+};
+union tagYMDHMS
+{
+	struct tagYMDHMSBit bit;
+	unsigned char abyYMDHMS[4];
+};
+
+unsigned char byCardNum;//内镜编号，值为：0-99
+
+内镜编号一个字节，年月日时分秒四个字节，这样发送一个包只需要五个字节。
