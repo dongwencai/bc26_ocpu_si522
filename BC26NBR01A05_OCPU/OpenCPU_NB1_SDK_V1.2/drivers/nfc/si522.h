@@ -119,8 +119,13 @@
 #define MI_FAIL                    (1)
 #define MI_ERR										(-1)
 extern void si522_init(void);
+extern void si522_manual(void);
+extern uint8_t si522_read(uint8_t addr);
+extern void si522_write(uint8_t addr, uint8_t value);
+extern void si522_bit_clear(uint8_t reg,uint8_t mask) ;
 extern int8_t si522_card_search(uint8_t *puid);
 extern int8_t PcdAnticoll(uint8_t *pSnr);
+extern void si522_edge_trigger_mode(void);
 extern int8_t PcdRequest(uint8_t req_code,uint8_t *pTagType);
 extern int8_t PcdSelect(uint8_t *pSnr);
 //extern nfc_ops_t si522;

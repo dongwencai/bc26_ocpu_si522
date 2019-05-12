@@ -16,12 +16,12 @@ static u8 spi_type = 1;
 static uint8_t nfc_tx_buf[MAXRLEN];
 
 #define USR_SPI_CHANNAL	1
-
 #define SI522_DEBUG(fmt, ...)	do{	\
 	char buffer[64] = {0};											\
 	Ql_sprintf(buffer, fmt, ##__VA_ARGS__);\	
 	Ql_UART_Write(UART_PORT0, (u8*)(buffer), Ql_strlen((buffer)));\
 	}while(0)
+
 static uint16_t si522_crc(uint8_t *pdata, uint16_t len);
 int8_t si522_communication(uint8_t Command, 
                  uint8_t *pInData, 
@@ -68,20 +68,20 @@ static void spi_init(void)
 	
 	if(ret <0)
 	{
-//			APP_DEBUG("\r\n<-- Failed!! Ql_SPI_Init fail , ret =%d-->\r\n",ret)
+			SI522_DEBUG("\r\n<-- Failed!! Ql_SPI_Init fail , ret =%d-->\r\n",ret);
 	}
 	else
 	{
-//			APP_DEBUG("\r\n<-- Ql_SPI_Init ret =%d -->\r\n",ret)	
+			SI522_DEBUG("\r\n<-- Ql_SPI_Init ret =%d -->\r\n",ret)	;
 	}
 	ret = Ql_SPI_Config(USR_SPI_CHANNAL,1,0,0,30); //config sclk about 30kHz;
 	if(ret <0)
 	{
-//			APP_DEBUG("\r\n<--Failed!! Ql_SPI_Config fail  ret=%d -->\r\n",ret)
+			SI522_DEBUG("\r\n<--Failed!! Ql_SPI_Config fail  ret=%d -->\r\n",ret);
 	}
 	else
 	{
-//			APP_DEBUG("\r\n<-- Ql_SPI_Config	=%d -->\r\n",ret)
+			SI522_DEBUG("\r\n<-- Ql_SPI_Config	=%d -->\r\n",ret);
 	} 	
 	
 	
@@ -98,11 +98,11 @@ static void spi_init(void)
 //=====================================================================================
 void si522_reset(void)
 {
-	Ql_GPIO_Init(PINNAME_GPIO4, PINDIRECTION_OUT, PINLEVEL_HIGH, PINPULLSEL_PULLUP);
-	Ql_Sleep(1);
-	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_LOW);
-	Ql_Sleep(1);
-	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_HIGH);
+//	Ql_GPIO_Init(PINNAME_GPIO4, PINDIRECTION_OUT, PINLEVEL_HIGH, PINPULLSEL_PULLUP);
+//	Ql_Sleep(1);
+//	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_LOW);
+//	Ql_Sleep(1);
+//	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_HIGH);
 
 //  NZ3801_RST_LOW();
 //  delay_us(1);
@@ -110,9 +110,8 @@ void si522_reset(void)
 //  NZ3801_RST_HIGH();
 //  delay_us(1);
 
-  si522_write(CommandReg,PCD_RESETPHASE);
-  si522_write(CommandReg,PCD_RESETPHASE);
-//  delay_us(1);
+  si522_write(CommandReg,0x9f);
+//  si522_write(CommandReg,PCD_RESETPHASE);
 	Ql_Sleep(1);
 
   si522_write(ModeReg,0x3D);            
@@ -124,7 +123,6 @@ void si522_reset(void)
 	
   PcdAntennaOff();
 	Ql_Sleep(1);
-//  delay_us(1);
   PcdAntennaOn();
 
 }
@@ -133,42 +131,67 @@ void si522_init(void)
 	uint8_t count = 0;
 	uint8_t value = 0;
 //	spi_init();
-//	si522_write(0x01, 0x0F);
-//	value = si522_read(0x01);
-//	si522_write(0x12, 0x00);
-//	si522_write(0x13, 0x00);
-//	si522_write(0x24, 0x26);
-//	si522_write(0x2A, 0x80);			
-//	si522_write(0x2B, 0xA9);		
-//	si522_write(0x2C, 0x03);		
-//	si522_write(0x2D, 0xE8);
-//	si522_write(0x15, 0x40);		
-//	si522_write(0x11, 0x3D);	
-//
-//	si522_write(0x26, 0x68);
-//	si522_write(0x03, 0xc0);
-//
-//	value = si522_read(0x03);
-//	value = si522_read(0x14);  // 00001 0100
-//	if ((value & 0x03) != 0x03){
-//		si522_write(0x14, value | 0x03);
-//	}						
+//	si522_reset();
+
+	si522_write(0x01, 0x0F);
+	value = si522_read(0x01);
+	si522_write(0x12, 0x00);
+	si522_write(0x13, 0x00);
+	si522_write(0x24, 0x26);
+	si522_write(0x2A, 0x80);			
+	si522_write(0x2B, 0xA9);		
+	si522_write(0x2C, 0x03);		
+	si522_write(0x2D, 0xE8);
+	si522_write(0x15, 0x40);		
+	si522_write(0x11, 0x3D);	
+
+	si522_write(0x26, 0x68);
+	si522_write(0x03, 0xc0);
+
+	value = si522_read(0x03);
+	value = si522_read(0x14);  // 00001 0100
+	if ((value & 0x03) != 0x03){
+		si522_write(0x14, value | 0x03);
+	}						
 ////////////////////////////////////////
-//	Ql_UART_Write(UART_PORT0, "si522 init...\r\n", strlen("si522 init...\r\n"));
 
-	si522_reset();
+//si522_reset();
 
-	si522_bit_clear(Status2Reg,0x08);
-	si522_write(ModeReg,0x3D);
-	si522_write(RxSelReg,0x86);
-	si522_write(RFCfgReg,0x7F);
-	si522_write(TReloadRegL,30);
-	si522_write(TReloadRegH,0);
-	si522_write(TModeReg,0x8D);
-	si522_write(TPrescalerReg,0x3E);
+//	si522_write(ComIEnReg, 0x00);
+//	SI522_DEBUG("ComIEnReg:%x\r\n", si522_read(ComIEnReg));
+//	si522_write(DivlEnReg, 0x00);
+//	SI522_DEBUG("DivlEnReg:%x\r\n", si522_read(DivlEnReg));
+	
+//	si522_bit_clear(Status2Reg,0x08);
+//	si522_write(ModeReg,0x3D);
+//	si522_write(RxSelReg,0x86);
+//	si522_write(RFCfgReg,0x7F);
+//	si522_write(TReloadRegL,30);
+//	si522_write(TReloadRegH,0);
+//	si522_write(TModeReg,0x8D);
+//	si522_write(TPrescalerReg,0x3E);
 
 }
 
+void si522_manual(void)
+{
+	si522_reset();
+	
+		si522_write(ComIEnReg, 0x00);
+		SI522_DEBUG("ComIEnReg:%x\r\n", si522_read(ComIEnReg));
+		si522_write(DivlEnReg, 0x00);
+		SI522_DEBUG("DivlEnReg:%x\r\n", si522_read(DivlEnReg));
+		
+		si522_bit_clear(Status2Reg,0x08);
+		si522_write(ModeReg,0x3D);
+		si522_write(RxSelReg,0x86);
+		si522_write(RFCfgReg,0x7F);
+		si522_write(TReloadRegL,30);
+		si522_write(TReloadRegH,0);
+		si522_write(TModeReg,0x8D);
+		si522_write(TPrescalerReg,0x3E);
+
+}
 //函  数 : Si522ACD_EdgeTriggerMode
 //功  能 : 初始化并使能Si522的ACD的边沿触发模式
 //入  参 : 无
@@ -176,17 +199,18 @@ void si522_init(void)
 void si522_edge_trigger_mode(void)
 {			
 	si522_write(0x20, 0x00);	// 访问ACDConfigA
-	si522_write(0x0f, 0x04);	// 设置定时唤醒寻卡时间间隔为500ms	
+	si522_write(0x0f, 0x00);	// 设置定时唤醒寻卡时间间隔为500ms	
 	si522_write(0x20, 0x01);	// 访问ACDConfigB
 	si522_write(0x0f, 0x04);	// 0000 0100b，设置边沿触发模式，配置B为04h(VREFIN = 0.31875V)	
 	si522_write(0x20, 0x03);	// 访问ACDConfigD
-	si522_write(0x0f, 0x04);	// 0000 0100b，检测差值为4	
+	si522_write(0x0f, 0x01);	// 0000 0100b，检测差值为4	
 	si522_write(0x20, 0x04);	// 访问ACDConfigE
 	si522_write(0x0f, 0xA7);	// 1010 0111b，配置E为A7h(打开运放，vr_s=0表明参考电压范围:0至0.31875V，时间间隔为7)                 		
-	si522_write(0x02, 0x80);	// 置位ComIEnReg.IRqInv位
+	si522_write(0x02, 0x00);	// 置位ComIEnReg.IRqInv位
 	si522_write(0x03, 0x40);	// 使能ACDIRq	 
 	si522_write(0x03, 0xc0);	// 使能ACDIRq//1100 0000  		         
 	si522_write(0x01, 0xB0);	// 使能ACD
+//	si522_write(RFCfgReg,0x7F);
 }
 
 //函  数 : Si522ACD_EdgeTriggerMode
