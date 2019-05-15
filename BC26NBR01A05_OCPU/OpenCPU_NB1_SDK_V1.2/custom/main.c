@@ -47,17 +47,36 @@ static Enum_SerialPort m_myUartPort  = UART_PORT0;
 #define SERIAL_RX_BUFFER_LEN  2048
 static u8 m_RxBuf_Uart[SERIAL_RX_BUFFER_LEN];
 
-static void spi_init(u8 spi_type);
 
 static void CallBack_UART_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, bool level, void* customizedPara);
 static s32 ATResponse_Handler(char* line, u32 len, void* userData);
+
+static void callback_psm_eint(void *user_data)
+{
+//	si522_init();
+//	si522_write(ComIrqReg, 0x04);
+//	Ql_SleepDisable();
+
+	APP_DEBUG("wake up\r\n");
+//spi_init(1);
+
+//	APP_DEBUG("%x\t%x\t%x\t%x\t%x\r\n", 
+//		si522_read(ComIEnReg), si522_read(DivlEnReg), si522_read(ComIrqReg), si522_read(DivIrqReg), si522_read(CommandReg));
+//	si522_init();
+////	si522_write();
+//	si522_edge_trigger_mode();
+}
 
 void proc_main_task(s32 taskId)
 { 
     s32 ret;
     ST_MSG msg;
 		char version[32] = {0};
+		
     Ql_GetSDKVer(version, 32);
+		
+		#if DEBUG_ENABLE > 0
+		
     ret = Ql_UART_Register(m_myUartPort, CallBack_UART_Hdlr, NULL);
     if (ret < QL_RET_OK){
       Ql_Debug_Trace("Fail to register serial port[%d], ret=%d\r\n", m_myUartPort, ret);
@@ -66,8 +85,12 @@ void proc_main_task(s32 taskId)
     if (ret < QL_RET_OK){
       Ql_Debug_Trace("Fail to open serial port[%d], ret=%d\r\n", m_myUartPort, ret);
     }
-
+		ret = Ql_Psm_Eint_Register(callback_psm_eint,NULL);
+		APP_DEBUG("psm_eint register , ret=%d\r\n",ret);
+//		ret = Ql_GetPowerOnReason();
+//		APP_DEBUG("power on reason, ret=%d\r\n",ret);
 		
+		#endif
 		APP_DEBUG("version %s\r\n", version);
 		
     APP_DEBUG("OpenCPU: Customer Application\r\n");
@@ -75,6 +98,7 @@ void proc_main_task(s32 taskId)
     // START MESSAGE LOOP OF THIS TASK
     while(TRUE)
     {
+//    	Ql_Sleep(1000);
       Ql_OS_GetMessage(&msg);
 			APP_DEBUG("cmd:%x param1:%d\tparam2:%d\r\n", msg.message, msg.param1, msg.param2);
       switch(msg.message)
@@ -82,7 +106,6 @@ void proc_main_task(s32 taskId)
 	      case MSG_ID_RIL_READY:
           APP_DEBUG("<-- RIL is ready -->\r\n");
           Ql_RIL_Initialize();
-          
           break;
 	      case MSG_ID_URC_INDICATION:
           //APP_DEBUG("<-- Received URC: type: %d, -->\r\n", msg.param1);
