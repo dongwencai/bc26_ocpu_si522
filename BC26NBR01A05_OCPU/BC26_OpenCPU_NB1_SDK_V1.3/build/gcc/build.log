@@ -1,0 +1,28 @@
+custom/main.c:44:1: error: unknown type name 'uint8_t'
+ uint8_t PSM_FLAG = 0x00;
+ ^
+custom/main.c: In function 'proc_main_task':
+custom/main.c:77:5: warning: pointer targets in passing argument 1 of 'Ql_GetSDKVer' differ in signedness [-Wpointer-sign]
+     Ql_GetSDKVer(version, 32);
+     ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/main.c:31:
+include/ql_system.h:158:6: note: expected 'u8 *' but argument is of type 'char *'
+ s32  Ql_GetSDKVer(u8* ptrVer, u32 len);
+      ^
+custom/main.c:80:3: warning: implicit declaration of function 'Ql_SleepEnable' [-Wimplicit-function-declaration]
+   Ql_SleepEnable();
+   ^
+custom/main.c:89:3: warning: implicit declaration of function 'Ql_Psm_Eint_Register' [-Wimplicit-function-declaration]
+   ret = Ql_Psm_Eint_Register(callback_psm_eint,NULL);
+   ^
+custom/main.c:91:3: warning: implicit declaration of function 'Ql_GetPowerOnReason' [-Wimplicit-function-declaration]
+   ret = Ql_GetPowerOnReason();
+   ^
+custom/main.c: In function 'CallBack_UART_Hdlr':
+custom/main.c:184:25: warning: variable 'ret' set but not used [-Wunused-but-set-variable]
+                     s32 ret;
+                         ^
+make.exe[1]: *** [build\gcc\obj/custom/main.o] Error 1
+make: *** [all] Error 2
