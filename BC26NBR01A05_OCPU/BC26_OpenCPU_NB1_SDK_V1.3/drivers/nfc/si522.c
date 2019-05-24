@@ -198,14 +198,14 @@ void si522_edge_trigger_mode(void)
 	si522_write(0x20, 0x01);	// 访问ACDConfigB
 	si522_write(0x0f, 0x04);	// 0000 0100b，设置边沿触发模式，配置B为04h(VREFIN = 0.31875V)	
 	si522_write(0x20, 0x03);	// 访问ACDConfigD
-	si522_write(0x0f, 0x01);	// 0000 0100b，检测差值为4	
+	si522_write(0x0f, 0x04);	// 0000 0100b，检测差值为4	
 	si522_write(0x20, 0x04);	// 访问ACDConfigE
 	si522_write(0x0f, 0xA7);	// 1010 0111b，配置E为A7h(打开运放，vr_s=0表明参考电压范围:0至0.31875V，时间间隔为7)                 		
 	si522_write(0x02, 0x00);	// 置位ComIEnReg.IRqInv位
 	si522_write(0x03, 0x40);	// 使能ACDIRq	 
 	si522_write(0x03, 0xc0);	// 使能ACDIRq//1100 0000  		         
 	si522_write(0x01, 0xB0);	// 使能ACD
-//	si522_write(RFCfgReg,0x7F);
+//	si522_write(RFCfgReg,0x0);
 }
 
 //函  数 : Si522ACD_EdgeTriggerMode

@@ -36,11 +36,14 @@
 #include "ql_uart.h"
 #include "ql_system.h"
 #include "ql_timer.h"
-
+#include "si522.h"
+#include <stdbool.h>
+static bool tt_init = false;
 #if DEBUG_ENABLE > 0
 char debug_buffer[DBG_BUF_LEN];
 #endif
 
+#define USR_SPI_CHANNAL		     (1)
 
 // Define the UART port and the receive data buffer
 static Enum_SerialPort m_myUartPort  = UART_PORT0;
@@ -53,11 +56,19 @@ static s32 ATResponse_Handler(char* line, u32 len, void* userData);
 
 static void callback_psm_eint(void *user_data)
 {
+//	Ql_SleepDisable();
+	if(tt_init){
+		si522_reset();
+		si522_edge_trigger_mode();	
+		
+			APP_DEBUG("%x\t%x\t%x\t%x\t%x\r\n", 
+				si522_read(ComIEnReg), si522_read(DivlEnReg), si522_read(ComIrqReg), si522_read(DivIrqReg), si522_read(CommandReg));
+	}
 //	si522_init();
 //	si522_write(ComIrqReg, 0x04);
 //	Ql_SleepDisable();
 
-	APP_DEBUG("wake up\r\n");
+//	APP_DEBUG("wake up\r\n");
 //spi_init(1);
 
 //	APP_DEBUG("%x\t%x\t%x\t%x\t%x\r\n", 
@@ -67,14 +78,39 @@ static void callback_psm_eint(void *user_data)
 //	si522_edge_trigger_mode();
 }
 
+static void spi_init(u8 spi_type)
+{
+	s32 ret;
+	
+	ret = Ql_SPI_Init(USR_SPI_CHANNAL,PINNAME_SPI_SCLK,PINNAME_SPI_MISO,PINNAME_SPI_MOSI,PINNAME_SPI_CS,spi_type);
+	
+	if(ret <0){
+		APP_DEBUG("\r\n<-- Failed!! Ql_SPI_Init fail , ret =%d-->\r\n",ret);
+	}else{
+		APP_DEBUG("\r\n<-- Ql_SPI_Init ret =%d -->\r\n",ret)	;
+	}
+	ret = Ql_SPI_Config(USR_SPI_CHANNAL,1,1,1,8192); //config sclk about 30kHz;
+	if(ret <0){
+		APP_DEBUG("\r\n<--Failed!! Ql_SPI_Config fail  ret=%d -->\r\n",ret);
+	}else{
+		APP_DEBUG("\r\n<-- Ql_SPI_Config	=%d -->\r\n",ret);
+	} 	
+	
+	
+	if (!spi_type){
+		Ql_GPIO_Init(PINNAME_SPI_CS,PINDIRECTION_OUT,PINLEVEL_HIGH,PINPULLSEL_PULLUP);	 //CS high
+	}
+
+}
+
 void proc_main_task(s32 taskId)
 { 
     s32 ret;
     ST_MSG msg;
 		char version[32] = {0};
-		
+		Ql_SleepEnable();
     Ql_GetSDKVer(version, 32);
-		
+
 		#if DEBUG_ENABLE > 0
 		
     ret = Ql_UART_Register(m_myUartPort, CallBack_UART_Hdlr, NULL);
@@ -89,11 +125,16 @@ void proc_main_task(s32 taskId)
 		APP_DEBUG("psm_eint register , ret=%d\r\n",ret);
 		ret = Ql_GetPowerOnReason();
 		APP_DEBUG("power on reason, ret=%d\r\n",ret);
-		
+		spi_init(1);
 		#endif
 		APP_DEBUG("version %s\r\n", version);
 		
     APP_DEBUG("OpenCPU: Customer Application\r\n");
+		si522_reset();
+		si522_edge_trigger_mode();
+			APP_DEBUG("%x\t%x\t%x\t%x\t%x\r\n", 
+				si522_read(ComIEnReg), si522_read(DivlEnReg), si522_read(ComIrqReg), si522_read(DivIrqReg), si522_read(CommandReg));
+		tt_init = true;
 
     // START MESSAGE LOOP OF THIS TASK
     while(TRUE)
@@ -107,7 +148,7 @@ void proc_main_task(s32 taskId)
             
             break;
         case MSG_ID_URC_INDICATION:
-            //APP_DEBUG("<-- Received URC: type: %d, -->\r\n", msg.param1);
+            APP_DEBUG("<-- Received URC: type: %d, -->\r\n", msg.param1);
             switch (msg.param1)
             {
             case URC_SYS_INIT_STATE_IND:
@@ -117,7 +158,9 @@ void proc_main_task(s32 taskId)
                 APP_DEBUG("<-- SIM Card Status:%d -->\r\n", msg.param2);
                 break;            
             case URC_EGPRS_NW_STATE_IND:
+//								Ql_SleepEnable();
                 APP_DEBUG("<-- EGPRS Network Status:%d -->\r\n", msg.param2);
+//								Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, 0, 0);
                 break;
             case URC_CFUN_STATE_IND:
                 APP_DEBUG("<-- CFUN Status:%d -->\r\n", msg.param2);

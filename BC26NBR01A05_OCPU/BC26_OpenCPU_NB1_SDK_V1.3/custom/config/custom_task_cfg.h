@@ -52,7 +52,7 @@
 TASK_ITEM(proc_main_task,       main_task_id,   10*1024, DEFAULT_VALUE1, DEFAULT_VALUE2) //main task
 TASK_ITEM(proc_reserved1,       reserved1_id,   5*1024,  DEFAULT_VALUE1, DEFAULT_VALUE2)  //RIL task
 TASK_ITEM(proc_reserved2,       reserved2_id,   5*1024,  DEFAULT_VALUE1, DEFAULT_VALUE2)  //URC task
-TASK_ITEM(proc_nfc_task,       nfc_task_id,   5*1024, DEFAULT_VALUE1, DEFAULT_VALUE2)
+//TASK_ITEM(proc_nfc_task,       nfc_task_id,   5*1024, DEFAULT_VALUE1, DEFAULT_VALUE2)
 
 
 #ifdef __EXAMPLE_MULTITASK__

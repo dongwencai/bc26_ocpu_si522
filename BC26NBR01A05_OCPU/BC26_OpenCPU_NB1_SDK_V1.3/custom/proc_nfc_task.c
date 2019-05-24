@@ -16,8 +16,6 @@
 #include "ql_power.h"
 #include "proc_nfc_task.h"
 
-#define USR_SPI_CHANNAL		     (1)
-
 void Ql_GPIO_Toggle(Enum_PinName pinName)
 {
 	if(Ql_GPIO_GetLevel(pinName)){
@@ -27,30 +25,6 @@ void Ql_GPIO_Toggle(Enum_PinName pinName)
 	}
 }
 
-static void spi_init(u8 spi_type)
-{
-	s32 ret;
-	
-	ret = Ql_SPI_Init(USR_SPI_CHANNAL,PINNAME_SPI_SCLK,PINNAME_SPI_MISO,PINNAME_SPI_MOSI,PINNAME_SPI_CS,spi_type);
-	
-	if(ret <0){
-		APP_DEBUG("\r\n<-- Failed!! Ql_SPI_Init fail , ret =%d-->\r\n",ret)
-	}else{
-		APP_DEBUG("\r\n<-- Ql_SPI_Init ret =%d -->\r\n",ret)	
-	}
-	ret = Ql_SPI_Config(USR_SPI_CHANNAL,1,1,1,8192); //config sclk about 30kHz;
-	if(ret <0){
-		APP_DEBUG("\r\n<--Failed!! Ql_SPI_Config fail  ret=%d -->\r\n",ret)
-	}else{
-		APP_DEBUG("\r\n<-- Ql_SPI_Config	=%d -->\r\n",ret)
-	} 	
-	
-	
-	if (!spi_type){
-		Ql_GPIO_Init(PINNAME_SPI_CS,PINDIRECTION_OUT,PINLEVEL_HIGH,PINPULLSEL_PULLUP);	 //CS high
-	}
-
-}
 
 static void rtc_callback(u32 timerId, void* param)
 {
@@ -58,19 +32,27 @@ static void rtc_callback(u32 timerId, void* param)
 
 void proc_nfc_task(s32 taskId)
 {
+	ST_MSG msg;
+
 #if(1)
 
 //	Ql_SleepEnable();
 
-	Ql_GPIO_Init(PINNAME_GPIO2, PINDIRECTION_OUT, PINLEVEL_LOW, PINPULLSEL_PULLUP);
+//	Ql_GPIO_Init(PINNAME_GPIO2, PINDIRECTION_OUT, PINLEVEL_LOW, PINPULLSEL_PULLUP);
 #endif
-	spi_init(1);
-	si522_reset();
-	
-	si522_edge_trigger_mode();
 	
 
+
 	while(TRUE){
+		Ql_OS_GetMessage(&msg);
+		switch(msg.message){
+			case MSG_ID_APP_TEST:
+				APP_DEBUG("MSG_ID_APP_TEST\r\n");
+				Ql_SleepEnable();
+				break;
+			default:
+				break;
+		}
 		#if 1
 //		si522_reset();
 //
@@ -83,8 +65,6 @@ void proc_nfc_task(s32 taskId)
 			APP_DEBUG("card sn:%x%x%x%x\r\n", uid[0], uid[1], uid[2], uid[3]);
 		}
 		#endif
-//		Ql_SleepEnable();
-		Ql_Sleep(3000);
 	}
 
 }
