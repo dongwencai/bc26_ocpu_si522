@@ -41,17 +41,17 @@ typedef enum {
     /****************************************/
     /* System URC definition begin          */
     /****************************************/
-    URC_SYS_BEGIN = 0,
-    URC_SYS_INIT_STATE_IND,     // Indication for module initialization state during boot stage, see also "Enum_SysInitState".
-    URC_SIM_CARD_STATE_IND,     // Indication for SIM card state (state change), see also "Enum_SIMState".
-    URC_GSM_NW_STATE_IND,       // Indication for GSM  network state (state change), see also "Enum_NetworkState".
-    URC_GPRS_NW_STATE_IND,      // Indication for GPRS network state (state change), see also "Enum_NetworkState".
-    URC_EGPRS_NW_STATE_IND,     // Indication for EGPRS network state (state change), see also "Enum_NetworkState".
-    URC_CFUN_STATE_IND,         // Indication for CFUN state, see also "Enum_CfunState".
-    URC_COMING_CALL_IND,        // Indication for coming call.
-    URC_CALL_STATE_IND,         // Indication for call state (state change), see also "Enum_CallState".
-    URC_NEW_SMS_IND,            // Indication for new short message.
-    URC_MODULE_VOLTAGE_IND,     // Indication for abnormal voltage of module supply power.
+  URC_SYS_BEGIN = 0,
+  URC_SYS_INIT_STATE_IND,     // Indication for module initialization state during boot stage, see also "Enum_SysInitState".
+  URC_SIM_CARD_STATE_IND,     // Indication for SIM card state (state change), see also "Enum_SIMState".
+  URC_GSM_NW_STATE_IND,       // Indication for GSM  network state (state change), see also "Enum_NetworkState".
+  URC_GPRS_NW_STATE_IND,      // Indication for GPRS network state (state change), see also "Enum_NetworkState".
+  URC_EGPRS_NW_STATE_IND,     // Indication for EGPRS network state (state change), see also "Enum_NetworkState".
+  URC_CFUN_STATE_IND,         // Indication for CFUN state, see also "Enum_CfunState".
+  URC_COMING_CALL_IND,        // Indication for coming call.
+  URC_CALL_STATE_IND,         // Indication for call state (state change), see also "Enum_CallState".
+  URC_NEW_SMS_IND,            // Indication for new short message.
+  URC_MODULE_VOLTAGE_IND,     // Indication for abnormal voltage of module supply power.
 	URC_ALARM_RING_IND,		    // Indication for clock alarm
 	URC_SOCKET_RECV_DATA,       // Indication for recv data from server
 	URC_SOCKET_CLOSE,           // Indication for close socket from server
@@ -64,6 +64,15 @@ typedef enum {
 	URC_ONENET_READ,            // Indication fro Notify the TE to Response the Read Request
 	URC_ONENET_EXECUTE,         // Indication for Notify the TE to Response the Execute Request
 	URC_PSM_EVENT,              //Indication for psm event
+	URC_IPADDR_IND,
+	URC_MQTT_STAT,
+	URC_MQTT_PUB,
+	URC_MQTT_SUB,
+	URC_MQTT_OPEN,
+	URC_MQTT_CONN,
+	URC_MQTT_CONN_IND,
+	URC_MQTT_CLOSE,
+	URC_MQTT_RECV_DATA,
     URC_SYS_END = 100,
     /*****************************************/
     /* System URC definition end             */
@@ -170,9 +179,6 @@ typedef struct{
   u32 remain_lifetime;
   u8 access_mode;
 }Onenet_Urc_Param_t;
-
-
-
 
 /******************************************************************************
 * Function:     Ql_RIL_Initialize

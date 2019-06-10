@@ -5,7 +5,7 @@
 #define ACD_IRQ			0x40
 #define ACDTIMER_IRQ	0x20
 
-#define MAXRLEN 32 
+#define MAXRLEN 256 
 
 /////////////////////////////////////////////////////////////////////
 //MF522ÃüÁî×Ö
@@ -124,6 +124,9 @@ extern uint8_t si522_read(uint8_t addr);
 extern void si522_write(uint8_t addr, uint8_t value);
 extern void si522_bit_clear(uint8_t reg,uint8_t mask) ;
 extern int8_t si522_card_search(uint8_t *puid);
+extern int8_t si522_card_block_read(void *pbuf, uint8_t block_nr);
+extern int8_t si522_card_block_write(const void *pbuf, uint8_t block_nr);
+extern int8_t si522_card_authent(uint8_t *puid, uint8_t key_type, uint8_t *key,  uint8_t block_nr);
 extern int8_t PcdAnticoll(uint8_t *pSnr);
 extern void si522_edge_trigger_mode(void);
 extern int8_t PcdRequest(uint8_t req_code,uint8_t *pTagType);

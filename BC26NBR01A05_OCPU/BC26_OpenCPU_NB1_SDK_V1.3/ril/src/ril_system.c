@@ -713,6 +713,5 @@ u32 open_param_parse_cmd(const char *cmd_string, const char *param_buffer, char 
     return param_num;
 }
 
-
 #endif  //__OCPU_RIL_SUPPORT__
 

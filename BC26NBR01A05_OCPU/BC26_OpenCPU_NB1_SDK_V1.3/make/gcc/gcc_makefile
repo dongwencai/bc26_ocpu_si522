@@ -38,7 +38,7 @@ INCS += -I ./           \
         -I ril/inc      \
         -I custom/config   \
        	-I drivers/nfc		\
-
+		-I custom/		\
 
 #-------------------------------------------------------------------------------
 # Configure source code dirctories

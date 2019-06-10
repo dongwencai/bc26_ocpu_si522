@@ -33,6 +33,8 @@
 #include "custom_feature_def.h"
 #include "ql_stdlib.h"
 #include "ril.h "
+#include "main.h"
+#include "atci.h"
 #include "ril_util.h"
 #include "ql_system.h"
 #include "ql_common.h"
@@ -60,7 +62,7 @@ static char DBG_Buffer[1024];
 /************************************************************************/
 /* Definition for URC receive task id.                                  */
 /************************************************************************/
-#define URC_RCV_TASK_ID  main_task_id
+#define URC_RCV_TASK_ID   main_task_id
 
 Socket_Recv_Param_t socket_recv_param= {{0},0,0,0};
 
@@ -106,6 +108,14 @@ static void OnURCHandler_ONENET_WRITE(const char* strURC, void* reserved);
 static void OnURCHandler_ONENET_READ(const char* strURC, void* reserved);
 static void OnURCHandler_ONENET_EXECUTE(const char* strURC, void* reserved);
 static void OnURCHandler_DFOTA_Hander  (const char* strURC, void* reserved);
+static void OnURCHandler_MQTT_RECV_DATA(const char* strURC, void* reserved);
+static void OnURCHandler_MQTT_STAT(const char* strURC, void* reserved);
+static void OnURCHandler_MQTT_PUB_IND(const char* strURC, void* reserved);
+static void OnURCHandler_MQTT_SUB_IND(const char* strURC, void* reserved);
+static void OnURCHandler_MQTT_OPEN_IND(const char* strURC, void* reserved);
+static void OnURCHandler_MQTT_CONN_IND(const char* strURC, void* reserved);
+static void OnURCHandler_MQTT_CLOSE_IND(const char* strURC, void* reserved);
+static void OnURCHandler_IPADDR_IND(const char* strURC, void* reserved);
 
 
 /************************************************************************/
@@ -161,7 +171,16 @@ const static ST_URC_HDLENTRY m_AtURCHdlEntry[] = {
 	{"\r\n+MIPLREAD:",                            OnURCHandler_ONENET_READ},
 	{"\r\n+MIPLEXECUTE:",                         OnURCHandler_ONENET_EXECUTE},
 	{"\r\n+QIND: \"FOTA\"",                       OnURCHandler_DFOTA_Hander},	
+	{"\r\n+QMTRECV:",                       OnURCHandler_MQTT_RECV_DATA},	
+	{"\r\n+QMTSTAT:",                       OnURCHandler_MQTT_STAT},	
+	{"\r\n+QMTPUB:",                       OnURCHandler_MQTT_PUB_IND},	
+	{"\r\n+QMTSUB:",                       OnURCHandler_MQTT_SUB_IND},
+	{"\r\n+QMTOPEN:",                       OnURCHandler_MQTT_OPEN_IND},
+	{"\r\n+QMTCONN:",                       OnURCHandler_MQTT_CONN_IND},
+	{"\r\n+QMTCLOSE:",                       OnURCHandler_MQTT_CLOSE_IND},	
+	{"\r\n+IP:",                       OnURCHandler_IPADDR_IND},	
 };
+
 
 static void OnURCHandler_QIURC_DATA(const char* strURC, void* reserved)
 {
@@ -754,10 +773,153 @@ static void OnURCHandler_DFOTA_Hander  (const char* strURC, void* reserved)
 	}
 }
 
+static void OnURCHandler_MQTT_RECV_DATA(const char* strURC, void* reserved)
+{
+	char *ps, *pe;
+	atci_param_t pb;
+	
+//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	ps = Ql_strstr(strURC, "\r\n+QMTRECV:");
+	ps += 2;
+	pe = Ql_strstr(ps, "\r\n");
+	if(ps && pe){
+		if(atci_param_parse(&pb, strURC, "+%[^:]")){
+			Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_RECV_DATA, &pb);
+		}
+	}
+}
+
+static void OnURCHandler_MQTT_STAT(const char* strURC, void* reserved)
+{
+	int stat;
+	char *ps, *pe;
+	atci_param_t pb;
+	
+//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	ps = Ql_strstr(strURC, "\r\n+QMTSTAT:");
+	ps += 2;
+	pe = Ql_strstr(ps, "\r\n");
+	if(ps && pe){
+		if(atci_param_parse(&pb, strURC, "+%[^:]")){
+			stat = Ql_atoi(pb.param[1]);
+			Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_STAT, stat);
+		}
+	}
+}
+
+static void OnURCHandler_MQTT_PUB_IND(const char* strURC, void* reserved)
+{
+	int stat;
+	char *ps, *pe;
+	atci_param_t pb;
+	
+//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	ps = Ql_strstr(strURC, "\r\n+QMTPUB:");
+	ps += 2;
+	pe = Ql_strstr(ps, "\r\n");
+	if(ps && pe){
+		if(atci_param_parse(&pb, strURC, "+%[^:]")){
+			if(pb.param_cnt >= 3){
+				stat = Ql_atoi(pb.param[2]);
+				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_PUB, stat);
+			}
+		}
+	}
+}
+static void OnURCHandler_MQTT_SUB_IND(const char* strURC, void* reserved)
+{
+	int stat;
+	char *ps, *pe;
+	atci_param_t pb;
+	
+//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	ps = Ql_strstr(strURC, "\r\n+QMTSUB:");
+	ps += 2;
+	pe = Ql_strstr(ps, "\r\n");
+	if(ps && pe){
+		if(atci_param_parse(&pb, strURC, "+%[^:]")){
+			if(pb.param_cnt >= 3){
+				stat = Ql_atoi(pb.param[2]);
+				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_SUB, stat);
+			}
+		}
+	}
+}
+static void OnURCHandler_MQTT_OPEN_IND(const char* strURC, void* reserved)
+{
+	int stat;
+	char *ps, *pe;
+	atci_param_t pb;
+//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	ps = Ql_strstr(strURC, "\r\n+QMTOPEN:");
+	ps += 2;
+	pe = Ql_strstr(ps, "\r\n");
+	if(ps && pe){
+		if(atci_param_parse(&pb, strURC, "+%[^:]")){
+			stat = Ql_atoi(pb.param[1]);
+			Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_OPEN, stat);
+		}
+	}
+}
+static void OnURCHandler_MQTT_CONN_IND(const char* strURC, void* reserved)
+{
+	int stat;
+	char *ps, *pe;
+	atci_param_t pb;
+//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	ps = Ql_strstr(strURC, "\r\n+QMTCONN:");
+	ps += 2;
+	pe = Ql_strstr(ps, "\r\n");
+	if(ps && pe){
+		if(atci_param_parse(&pb, strURC, "+%[^:]")){
+			if(pb.param_cnt == 3){
+				stat = Ql_atoi(pb.param[1]);
+				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CONN, stat);
+			}else{
+				stat = Ql_atoi(pb.param[1]);
+				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CONN_IND, stat);
+			}
+		}
+	}
+}
+
+static void OnURCHandler_MQTT_CLOSE_IND(const char* strURC, void* reserved)
+{
+	int stat;
+	char *ps, *pe;
+	atci_param_t pb;
+	
+//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	ps = Ql_strstr(strURC, "\r\n+QMTCLOSE:");
+	ps += 2;
+	pe = Ql_strstr(ps, "\r\n");
+	if(ps && pe){
+		if(atci_param_parse(&pb, strURC, "+%[^:]")){
+			stat = Ql_atoi(pb.param[1]);
+			Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CLOSE, stat);
+		}
+	}
+
+}
+static void OnURCHandler_IPADDR_IND(const char* strURC, void* reserved)
+{
+	int stat;
+	char *ps, *pe;
+	atci_param_t pb;
+	
+//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	ps = Ql_strstr(strURC, "\r\n+IP:");
+	ps += 2;
+	pe = Ql_strstr(ps, "\r\n");
+	if(ps && pe){
+		Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_IPADDR_IND, 0);
+	}
+}
+
 static void OnURCHandler_Undefined(const char* strURC, void* reserved)
 {
-
-    Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_END, 0);
+//	APP_DEBUG("OnURCHandler_Undefined:%s\r\n", strURC);
+  Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_END, 0);
 }
 
 /*****************************************************************

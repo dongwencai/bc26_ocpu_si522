@@ -16,11 +16,7 @@ static u8 spi_type = 1;
 static uint8_t nfc_tx_buf[MAXRLEN];
 
 #define USR_SPI_CHANNAL	1
-#define SI522_DEBUG(fmt, ...)	do{	\
-	char buffer[64] = {0};											\
-	Ql_sprintf(buffer, fmt, ##__VA_ARGS__);\	
-	Ql_UART_Write(UART_PORT0, (u8*)(buffer), Ql_strlen((buffer)));\
-	}while(0)
+
 
 static uint16_t si522_crc(uint8_t *pdata, uint16_t len);
 int8_t si522_communication(uint8_t Command, 
@@ -41,7 +37,7 @@ void si522_write(uint8_t addr, uint8_t value)
 uint8_t si522_read(uint8_t addr)
 {
   uint8_t value;
-  addr = (addr & 0x3f)<<1 | 0x80;
+  addr = (addr & 0x3f) << 1 | 0x80;
 	Ql_SPI_WriteRead(spiChn, &addr, 1, &value, 1);
   return value;
 }
@@ -60,54 +56,22 @@ void si522_bit_clear(uint8_t reg,uint8_t mask)
   si522_write(reg, tmp & ~mask);  // clear bit mask
 } 
 
-static void spi_init(void)
-{
-	s32 ret;
-	
-	ret = Ql_SPI_Init(USR_SPI_CHANNAL,PINNAME_SPI_SCLK,PINNAME_SPI_MISO,PINNAME_SPI_MOSI,PINNAME_SPI_CS,spi_type);
-	
-	if(ret <0)
-	{
-			SI522_DEBUG("\r\n<-- Failed!! Ql_SPI_Init fail , ret =%d-->\r\n",ret);
-	}
-	else
-	{
-			SI522_DEBUG("\r\n<-- Ql_SPI_Init ret =%d -->\r\n",ret)	;
-	}
-	ret = Ql_SPI_Config(USR_SPI_CHANNAL,1,0,0,30); //config sclk about 30kHz;
-	if(ret <0)
-	{
-			SI522_DEBUG("\r\n<--Failed!! Ql_SPI_Config fail  ret=%d -->\r\n",ret);
-	}
-	else
-	{
-			SI522_DEBUG("\r\n<-- Ql_SPI_Config	=%d -->\r\n",ret);
-	} 	
-	
-	
-	if (!spi_type)
-	{
-		Ql_GPIO_Init(PINNAME_SPI_CS,PINDIRECTION_OUT,PINLEVEL_HIGH,PINPULLSEL_PULLUP);	 //CS high
-	}
-
-}
-
 //=====================================================================================
 //函数：Si522_Init()
 //功能：配置Si522为读写器模式
 //=====================================================================================
 void si522_reset(void)
 {
-	Ql_GPIO_Init(PINNAME_GPIO4, PINDIRECTION_OUT, PINLEVEL_HIGH, PINPULLSEL_PULLUP);
-	Ql_Sleep(1);
-	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_LOW);
-	Ql_Sleep(1);
-	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_HIGH);
+//	Ql_GPIO_Init(PINNAME_GPIO4, PINDIRECTION_OUT, PINLEVEL_HIGH, PINPULLSEL_PULLUP);
+//	Ql_Sleep(1);
+//	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_LOW);
+//	Ql_Sleep(1);
+//	Ql_GPIO_SetLevel(PINNAME_GPIO4, PINLEVEL_HIGH);
 
 
   si522_write(CommandReg,0x9f);
 //  si522_write(CommandReg,PCD_RESETPHASE);
-	Ql_Sleep(1);
+//	Ql_Sleep(1);
 
   si522_write(ModeReg,0x3D);            
   si522_write(TReloadRegL,30);
@@ -125,7 +89,6 @@ void si522_init(void)
 {
 	uint8_t count = 0;
 	uint8_t value = 0;
-//	spi_init();
 //	si522_reset();
 
 	si522_write(0x01, 0x0F);
@@ -173,9 +136,9 @@ void si522_manual(void)
 	si522_reset();
 	
 		si522_write(ComIEnReg, 0x00);
-		SI522_DEBUG("ComIEnReg:%x\r\n", si522_read(ComIEnReg));
+//		SI522_DEBUG("ComIEnReg:%x\r\n", si522_read(ComIEnReg));
 		si522_write(DivlEnReg, 0x00);
-		SI522_DEBUG("DivlEnReg:%x\r\n", si522_read(DivlEnReg));
+//		SI522_DEBUG("DivlEnReg:%x\r\n", si522_read(DivlEnReg));
 		
 		si522_bit_clear(Status2Reg,0x08);
 		si522_write(ModeReg,0x3D);
@@ -244,7 +207,6 @@ int8_t PcdRequest(uint8_t req_code,uint8_t *pTagType)
 	if ((status == NFC_SUCCESS) && (len == 0x10)){    
 		*pTagType = nfc_tx_buf[0];
 		*(pTagType+1) = nfc_tx_buf[1];
-		SI522_DEBUG("card type:%x%x\r\n", nfc_tx_buf[1], nfc_tx_buf[0]);
 	}
 	
 	return status;
@@ -273,7 +235,6 @@ int8_t PcdAnticoll(uint8_t *pSnr)
 	   if (snr_check != nfc_tx_buf[i]){   
 	     status = NFC_FAIL;    
 		 }
-		 SI522_DEBUG("card sn:%x%x%x%x\r\n", pSnr[0], pSnr[1], pSnr[2], pSnr[3]);
   }
   
   si522_bit_set(CollReg,0x80);
@@ -299,8 +260,6 @@ int8_t PcdSelect(uint8_t *pSnr)
 
   status = si522_communication(PCD_TRANSCEIVE, nfc_tx_buf, 9, nfc_tx_buf, &len);
 	status = (len == 0x18 ? status : NFC_FAIL);
-	SI522_DEBUG("%s\t%d status:%d len:%d\r\n", __func__, __LINE__, status, len);
-
   return status;
 }
 
@@ -316,13 +275,13 @@ int8_t PcdSelect(uint8_t *pSnr)
 		}
 		status = PcdSelect(SN);
 		if(status == NFC_SUCCESS){
-			memcpy(puid, SN, 6);
+			Ql_memcpy(puid, SN, 4);
 		}
 	}
 
 	return status;
 }
-static int8_t si522_card_authent(uint8_t *puid, uint8_t key_type, uint8_t *key,  uint8_t block_nr)
+int8_t si522_card_authent(uint8_t *puid, uint8_t key_type, uint8_t *key,  uint8_t block_nr)
 {
   uint8_t   len;
 	int8_t status = NFC_SUCCESS;
@@ -330,8 +289,8 @@ static int8_t si522_card_authent(uint8_t *puid, uint8_t key_type, uint8_t *key, 
   nfc_tx_buf[0] = 0x60;
   nfc_tx_buf[1] = block_nr;
 
-  memcpy(&nfc_tx_buf[2], key, 6);
-  memcpy(&nfc_tx_buf[8], puid, 4);
+  Ql_memcpy(&nfc_tx_buf[2], key, 6);
+  Ql_memcpy(&nfc_tx_buf[8], puid, 4);
 
   status = si522_communication(PCD_AUTHENT, nfc_tx_buf, 12, nfc_tx_buf, &len);
   if ((status != NFC_SUCCESS) || (!(si522_read(Status2Reg) & 0x08))){
@@ -340,7 +299,7 @@ static int8_t si522_card_authent(uint8_t *puid, uint8_t key_type, uint8_t *key, 
   return status;
 }
 
-static int8_t si522_card_block_write(const void *pbuf, uint8_t block_nr)
+int8_t si522_card_block_write(const void *pbuf, uint8_t block_nr)
 {
   int8_t   status = NFC_ERR;
   uint8_t   len;
@@ -372,7 +331,7 @@ static int8_t si522_card_block_write(const void *pbuf, uint8_t block_nr)
 
 }
 
-static int8_t si522_card_block_read(void *pbuf, uint8_t block_nr)
+int8_t si522_card_block_read(void *pbuf, uint8_t block_nr)
 {
   uint8_t   len;
   int8_t   status = NFC_FAIL;
@@ -382,9 +341,9 @@ static int8_t si522_card_block_read(void *pbuf, uint8_t block_nr)
   nfc_tx_buf[1] = block_nr;
   *pcrc = si522_crc(nfc_tx_buf, 2);
 
-  status = si522_communication(PCD_TRANSCEIVE,nfc_tx_buf,4,nfc_tx_buf,&len);
+  status = si522_communication(PCD_TRANSCEIVE, nfc_tx_buf, 4, nfc_tx_buf, &len);
   if ((status == NFC_SUCCESS) && (len == 0x90)){
-		memcpy(pbuf, nfc_tx_buf, 16);
+		Ql_memcpy(pbuf, nfc_tx_buf, 16);
   }else{
     status = NFC_FAIL;
   }
@@ -491,14 +450,16 @@ int8_t si522_communication(uint8_t Command,
     si522_bit_set(BitFramingReg,0x80);  
 	}
   
-  i = 5000;//根据时钟频率调整，操作M1卡最大等待时间25ms
+  i = 500;
   do {
      n = si522_read(ComIrqReg);
-  }while ((-- i != 0) && !(n & 0x01) && !(n & waitFor));
+  }while ((-- i > 0) && !(n & 0x01) && !(n & waitFor));
 	
   si522_bit_clear(BitFramingReg,0x80);
   if (i != 0){    
-   if(!(si522_read(ErrorReg) & 0x1B))  {
+   if(si522_read(ErrorReg) & 0x1B)  {
+		 	status = NFC_ERR;
+		}else{
      status = NFC_SUCCESS;
      if (n & irqEn & 0x01){  
 		 	status = NFC_FAIL;   
@@ -507,14 +468,14 @@ int8_t si522_communication(uint8_t Command,
      	n = si522_read(FIFOLevelReg);
     	lastBits = si522_read(ControlReg) & 0x07;
       if (lastBits){   
-      	*pOutLenBit = (n-1)*8 + lastBits;  
+      	*pOutLenBit = (n - 1) * 8 + lastBits;  
 			}
       else{   
-				*pOutLenBit = n*8;
+				*pOutLenBit = n * 8;
 			}
 			n = n ? n : 1;
 			n = n > MAXRLEN ? MAXRLEN : n;
-      for (i=0; i<n; i++){   
+      for (i=0; i < n; i++){   
         pOutData[i] = si522_read(FIFODataReg);
 			}
     }

@@ -1,42 +1,134 @@
-custom/main.c: In function 'callback_psm_eint':
-custom/main.c:61:3: warning: implicit declaration of function 'si522_reset' [-Wimplicit-function-declaration]
-   si522_reset();
-   ^
-custom/main.c: In function 'spi_init':
-custom/main.c:85:2: warning: implicit declaration of function 'Ql_SPI_Init' [-Wimplicit-function-declaration]
-  ret = Ql_SPI_Init(USR_SPI_CHANNAL,PINNAME_SPI_SCLK,PINNAME_SPI_MISO,PINNAME_SPI_MOSI,PINNAME_SPI_CS,spi_type);
+custom/proc_mqtt_task.c: In function 'mqtt_send_data':
+custom/proc_mqtt_task.c:30:2: warning: pointer targets in passing argument 1 of 'base64_encode' differ in signedness [-Wpointer-sign]
+  en_len = base64_encode(data, length, dst);
   ^
-custom/main.c:92:2: warning: implicit declaration of function 'Ql_SPI_Config' [-Wimplicit-function-declaration]
-  ret = Ql_SPI_Config(USR_SPI_CHANNAL,1,1,1,8192); //config sclk about 30kHz;
+In file included from custom/proc_mqtt_task.c:4:0:
+custom/base64.h:13:17: note: expected 'char *' but argument is of type 'u8 *'
+ extern uint32_t base64_encode(char *src, uint32_t len, char *dst);
+                 ^
+custom/proc_mqtt_task.c:33:2: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+  Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, 0, pdata);
   ^
-custom/main.c: In function 'proc_main_task':
-custom/main.c:111:3: warning: implicit declaration of function 'Ql_SleepEnable' [-Wimplicit-function-declaration]
-   Ql_SleepEnable();
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'char *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'proc_mqtt_init':
+custom/proc_mqtt_task.c:40:2: warning: passing argument 2 of 'Ql_SecureData_Read' from incompatible pointer type [enabled by default]
+  Ql_SecureData_Read(2, &record, sizeof(record));
+  ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:485:5: note: expected 'u8 *' but argument is of type 'struct <anonymous> *'
+ s32 Ql_SecureData_Read(u8 index, u8* pBuffer, u32 len);
+     ^
+custom/proc_mqtt_task.c:43:4: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+    memset(&record, 0x00, sizeof(record));
+    ^
+custom/proc_mqtt_task.c:44:4: warning: passing argument 2 of 'Ql_SecureData_Store' from incompatible pointer type [enabled by default]
+    Ql_SecureData_Store(2, &record, sizeof(record));
+    ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:462:5: note: expected 'u8 *' but argument is of type 'struct <anonymous> *'
+ s32 Ql_SecureData_Store(u8 index , u8* pData, u32 len);
+     ^
+custom/proc_mqtt_task.c: In function 'ATResponse_Handler':
+custom/proc_mqtt_task.c:68:3: warning: implicit declaration of function 'Ql_RIL_FindLine' [-Wimplicit-function-declaration]
+   if(Ql_RIL_FindLine(line, len, "OK")){  
    ^
-custom/main.c:112:5: warning: pointer targets in passing argument 1 of 'Ql_GetSDKVer' differ in signedness [-Wpointer-sign]
-     Ql_GetSDKVer(version, 32);
+custom/proc_mqtt_task.c:72:3: warning: implicit declaration of function 'Ql_RIL_FindString' [-Wimplicit-function-declaration]
+   }else if (Ql_RIL_FindString(line, len, "+CME ERROR")){
+   ^
+custom/proc_mqtt_task.c: In function 'mqtt_idle_proc':
+custom/proc_mqtt_task.c:89:2: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
+  strcpy(record.context, pdata);
+  ^
+custom/proc_mqtt_task.c: In function 'mqtt_query_state_proc':
+custom/proc_mqtt_task.c:126:2: warning: implicit declaration of function 'RIL_SOC_QMTSTAT' [-Wimplicit-function-declaration]
+  if(RIL_SOC_QMTSTAT() == MQTT_CONN_OK){
+  ^
+custom/proc_mqtt_task.c: In function 'mqtt_open_proc':
+custom/proc_mqtt_task.c:134:2: warning: pointer targets in passing argument 1 of 'RIL_SOC_QMTOPEN' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTOPEN(DEVICE_PARAM(serverip), DEVICE_PARAM(serverport)) == MQTT_OPEN_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:34:12: note: expected 'char *' but argument is of type 'uint8_t *'
+ extern s32 RIL_SOC_QMTOPEN(char *host, u16 port);
+            ^
+custom/proc_mqtt_task.c: In function 'mqtt_connect_proc':
+custom/proc_mqtt_task.c:144:2: warning: implicit declaration of function 'RIL_GetIMEI' [-Wimplicit-function-declaration]
+  RIL_GetIMEI(imei);
+  ^
+custom/proc_mqtt_task.c:145:2: warning: pointer targets in passing argument 2 of 'RIL_SOC_QMTCONN' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTCONN(imei, DEVICE_PARAM(username), DEVICE_PARAM(password)) != MQTT_CONN_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:37:12: note: expected 'char *' but argument is of type 'uint8_t *'
+ extern s32 RIL_SOC_QMTCONN(char *clientid, char *user, char *passwd);
+            ^
+custom/proc_mqtt_task.c:145:2: warning: pointer targets in passing argument 3 of 'RIL_SOC_QMTCONN' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTCONN(imei, DEVICE_PARAM(username), DEVICE_PARAM(password)) != MQTT_CONN_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:37:12: note: expected 'char *' but argument is of type 'uint8_t *'
+ extern s32 RIL_SOC_QMTCONN(char *clientid, char *user, char *passwd);
+            ^
+custom/proc_mqtt_task.c: At top level:
+custom/proc_mqtt_task.c:152:13: warning: function declaration isn't a prototype [-Wstrict-prototypes]
+ static void mqtt_publish_proc()
+             ^
+custom/proc_mqtt_task.c: In function 'mqtt_publish_proc':
+custom/proc_mqtt_task.c:154:2: warning: pointer targets in passing argument 1 of 'RIL_SOC_QMTPUB' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTPUB(DEVICE_PARAM(publishtopic), 2, 1, record.context) != MQTT_PUB_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:36:12: note: expected 'char *' but argument is of type 'uint8_t *'
+ extern s32 RIL_SOC_QMTPUB(char *topic, u8 qos, u16 msgid, char *text);
+            ^
+custom/proc_mqtt_task.c:154:2: warning: pointer targets in passing argument 4 of 'RIL_SOC_QMTPUB' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTPUB(DEVICE_PARAM(publishtopic), 2, 1, record.context) != MQTT_PUB_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:36:12: note: expected 'char *' but argument is of type 'u8 *'
+ extern s32 RIL_SOC_QMTPUB(char *topic, u8 qos, u16 msgid, char *text);
+            ^
+custom/proc_mqtt_task.c:157:3: warning: pointer targets in passing argument 1 of 'Ql_strstr' differ in signedness [-Wpointer-sign]
+   if(Ql_strstr(record.context, "bootNotification")){
+   ^
+In file included from custom/main.h:4:0,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_stdlib.h:53:7: note: expected 'const char *' but argument is of type 'u8 *'
+ char* Ql_strstr(const char* s1, const char* s2);
+       ^
+custom/proc_mqtt_task.c:165:5: warning: passing argument 2 of 'Ql_SecureData_Store' from incompatible pointer type [enabled by default]
+     Ql_SecureData_Store(2, &record, sizeof(record));
      ^
 In file included from include/ql_uart.h:38:0,
                  from custom/main.h:3,
-                 from custom/main.c:31:
-include/ql_system.h:158:6: note: expected 'u8 *' but argument is of type 'char *'
- s32  Ql_GetSDKVer(u8* ptrVer, u32 len);
-      ^
-custom/main.c:116:5: warning: passing argument 2 of 'Ql_UART_Register' from incompatible pointer type [enabled by default]
-     ret = Ql_UART_Register(m_myUartPort, CallBack_UART_Hdlr, NULL);
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:462:5: note: expected 'u8 *' but argument is of type 'struct <anonymous> *'
+ s32 Ql_SecureData_Store(u8 index , u8* pData, u32 len);
      ^
-In file included from custom/main.h:3:0,
-                 from custom/main.c:31:
-include/ql_uart.h:116:5: note: expected 'CallBack_UART_Notify' but argument is of type 'void (*)(enum Enum_SerialPort,  enum Enum_UARTEventType,  _Bool,  void *)'
- s32 Ql_UART_Register(Enum_SerialPort port, CallBack_UART_Notify callback_uart,void * customizePara);
+custom/proc_mqtt_task.c: In function 'mqtt_reset_proc':
+custom/proc_mqtt_task.c:184:4: warning: passing argument 2 of 'Ql_SecureData_Store' from incompatible pointer type [enabled by default]
+    Ql_SecureData_Store(2, &record, sizeof(record));
+    ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:462:5: note: expected 'u8 *' but argument is of type 'struct <anonymous> *'
+ s32 Ql_SecureData_Store(u8 index , u8* pData, u32 len);
      ^
-custom/main.c:124:3: warning: implicit declaration of function 'Ql_Psm_Eint_Register' [-Wimplicit-function-declaration]
-   ret = Ql_Psm_Eint_Register(callback_psm_eint,NULL);
-   ^
-custom/main.c:126:3: warning: implicit declaration of function 'Ql_GetPowerOnReason' [-Wimplicit-function-declaration]
-   ret = Ql_GetPowerOnReason();
-   ^
-custom/main.c: In function 'CallBack_UART_Hdlr':
-custom/main.c:223:25: warning: variable 'ret' set but not used [-Wunused-but-set-variable]
-                     s32 ret;
-                         ^
+custom/proc_mqtt_task.c: At top level:
+custom/proc_mqtt_task.c:66:12: warning: 'ATResponse_Handler' defined but not used [-Wunused-function]
+ static s32 ATResponse_Handler(char* line, u32 len, void* userData)
+            ^
+custom/proc_mqtt_task.c: In function 'mqtt_send_data':
+custom/proc_mqtt_task.c:34:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
