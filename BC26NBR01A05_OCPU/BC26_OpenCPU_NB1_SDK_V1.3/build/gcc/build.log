@@ -1,16 +1,282 @@
-In file included from custom/proc_nfc_task.c:1:0:
-drivers/nfc/nfc.h:15:2: warning: function declaration isn't a prototype [-Wstrict-prototypes]
-  int8_t (*init)();
+custom/proc_mqtt_task.c: In function 'mqtt_send_data':
+custom/proc_mqtt_task.c:33:2: warning: pointer targets in passing argument 1 of 'base64_encode' differ in signedness [-Wpointer-sign]
+  en_len = base64_encode(data, length, dst);
   ^
-custom/proc_nfc_task.c: In function 'card_read_proc':
-custom/proc_nfc_task.c:103:4: warning: implicit declaration of function 'mqtt_send_data' [-Wimplicit-function-declaration]
-    mqtt_send_data(&buf[1], 1);
+In file included from custom/proc_mqtt_task.c:4:0:
+custom/base64.h:13:17: note: expected 'char *' but argument is of type 'u8 *'
+ extern uint32_t base64_encode(char *src, uint32_t len, char *dst);
+                 ^
+custom/proc_mqtt_task.c:36:2: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+  Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_IDLE, pdata);
+  ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'char *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'net_state_query_timer':
+custom/proc_mqtt_task.c:46:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_CONFIG, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'mqtt_bh_timer':
+custom/proc_mqtt_task.c:55:2: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+  Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_NUM, NULL);
+  ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'proc_mqtt_init':
+custom/proc_mqtt_task.c:67:2: warning: passing argument 2 of 'Ql_SecureData_Read' from incompatible pointer type [enabled by default]
+  Ql_SecureData_Read(2, &record, sizeof(record));
+  ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:485:5: note: expected 'u8 *' but argument is of type 'struct <anonymous> *'
+ s32 Ql_SecureData_Read(u8 index, u8* pBuffer, u32 len);
+     ^
+custom/proc_mqtt_task.c:70:4: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+    memset(&record, 0x00, sizeof(record));
     ^
-custom/proc_nfc_task.c: In function 'card_psm_proc':
-custom/proc_nfc_task.c:139:2: warning: implicit declaration of function 'si522_reset' [-Wimplicit-function-declaration]
-  si522_reset();
+custom/proc_mqtt_task.c:71:4: warning: passing argument 2 of 'Ql_SecureData_Store' from incompatible pointer type [enabled by default]
+    Ql_SecureData_Store(2, &record, sizeof(record));
+    ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:462:5: note: expected 'u8 *' but argument is of type 'struct <anonymous> *'
+ s32 Ql_SecureData_Store(u8 index , u8* pData, u32 len);
+     ^
+custom/proc_mqtt_task.c:75:4: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+    Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, NET_QUERY_STATE, NULL);
+    ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c:86:3: warning: pointer targets in passing argument 1 of 'Ql_sprintf' differ in signedness [-Wpointer-sign]
+   Ql_sprintf(record.context, fmt, DEVICE_PARAM(type), DEVICE_PARAM(devicename),"v1.0.1");
+   ^
+custom/proc_mqtt_task.c:86:3: note: expected 'char *' but argument is of type 'u8 *'
+custom/proc_mqtt_task.c:87:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, NET_QUERY_STATE, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'ATResponse_Handler':
+custom/proc_mqtt_task.c:97:3: warning: implicit declaration of function 'Ql_RIL_FindLine' [-Wimplicit-function-declaration]
+   if(Ql_RIL_FindLine(line, len, "OK")){  
+   ^
+custom/proc_mqtt_task.c:101:3: warning: implicit declaration of function 'Ql_RIL_FindString' [-Wimplicit-function-declaration]
+   }else if (Ql_RIL_FindString(line, len, "+CME ERROR")){
+   ^
+custom/proc_mqtt_task.c: In function 'mqtt_idle_proc':
+custom/proc_mqtt_task.c:118:2: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
+  strcpy(record.context, pdata);
   ^
-custom/proc_nfc_task.c: In function 'proc_nfc_task':
-custom/proc_nfc_task.c:230:10: warning: unused variable 'uid' [-Wunused-variable]
-  uint8_t uid[4];
-          ^
+custom/proc_mqtt_task.c:122:2: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+  Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, NET_QUERY_STATE, NULL);
+  ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c:113:9: warning: unused variable 'msg' [-Wunused-variable]
+  ST_MSG msg;
+         ^
+custom/proc_mqtt_task.c: In function 'mqtt_config_proc':
+custom/proc_mqtt_task.c:152:2: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+  Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_QUERY_STATE, NULL);
+  ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'mqtt_query_state_proc':
+custom/proc_mqtt_task.c:158:2: warning: implicit declaration of function 'RIL_SOC_QMTSTAT' [-Wimplicit-function-declaration]
+  if(RIL_SOC_QMTSTAT() == MQTT_CONN_OK){
+  ^
+custom/proc_mqtt_task.c:160:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_PUB, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c:164:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_OPEN, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'mqtt_open_proc':
+custom/proc_mqtt_task.c:169:2: warning: pointer targets in passing argument 1 of 'RIL_SOC_QMTOPEN' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTOPEN(DEVICE_PARAM(serverip), DEVICE_PARAM(serverport)) == MQTT_OPEN_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:34:12: note: expected 'char *' but argument is of type 'uint8_t *'
+ extern s32 RIL_SOC_QMTOPEN(char *host, u16 port);
+            ^
+custom/proc_mqtt_task.c:171:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_CONN, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c:175:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_RESET, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'mqtt_connect_proc':
+custom/proc_mqtt_task.c:181:2: warning: implicit declaration of function 'RIL_GetIMEI' [-Wimplicit-function-declaration]
+  RIL_GetIMEI(imei);
+  ^
+custom/proc_mqtt_task.c:182:2: warning: pointer targets in passing argument 2 of 'RIL_SOC_QMTCONN' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTCONN(imei, DEVICE_PARAM(username), DEVICE_PARAM(password)) != MQTT_CONN_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:37:12: note: expected 'char *' but argument is of type 'uint8_t *'
+ extern s32 RIL_SOC_QMTCONN(char *clientid, char *user, char *passwd);
+            ^
+custom/proc_mqtt_task.c:182:2: warning: pointer targets in passing argument 3 of 'RIL_SOC_QMTCONN' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTCONN(imei, DEVICE_PARAM(username), DEVICE_PARAM(password)) != MQTT_CONN_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:37:12: note: expected 'char *' but argument is of type 'uint8_t *'
+ extern s32 RIL_SOC_QMTCONN(char *clientid, char *user, char *passwd);
+            ^
+custom/proc_mqtt_task.c:184:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_RESET, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c:188:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_PUB, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: At top level:
+custom/proc_mqtt_task.c:191:13: warning: function declaration isn't a prototype [-Wstrict-prototypes]
+ static void mqtt_publish_proc()
+             ^
+custom/proc_mqtt_task.c: In function 'mqtt_publish_proc':
+custom/proc_mqtt_task.c:193:2: warning: pointer targets in passing argument 1 of 'RIL_SOC_QMTPUB' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTPUB(DEVICE_PARAM(publishtopic), 2, 1, record.context) != MQTT_PUB_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:36:12: note: expected 'char *' but argument is of type 'uint8_t *'
+ extern s32 RIL_SOC_QMTPUB(char *topic, u8 qos, u16 msgid, char *text);
+            ^
+custom/proc_mqtt_task.c:193:2: warning: pointer targets in passing argument 4 of 'RIL_SOC_QMTPUB' differ in signedness [-Wpointer-sign]
+  if(RIL_SOC_QMTPUB(DEVICE_PARAM(publishtopic), 2, 1, record.context) != MQTT_PUB_OK){
+  ^
+In file included from custom/proc_mqtt_task.c:6:0:
+ril/inc/ril_mqtt.h:36:12: note: expected 'char *' but argument is of type 'u8 *'
+ extern s32 RIL_SOC_QMTPUB(char *topic, u8 qos, u16 msgid, char *text);
+            ^
+custom/proc_mqtt_task.c:196:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_RESET, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c:198:3: warning: pointer targets in passing argument 1 of 'Ql_strstr' differ in signedness [-Wpointer-sign]
+   if(Ql_strstr(record.context, "bootNotification")){
+   ^
+In file included from custom/main.h:4:0,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_stdlib.h:53:7: note: expected 'const char *' but argument is of type 'u8 *'
+ char* Ql_strstr(const char* s1, const char* s2);
+       ^
+custom/proc_mqtt_task.c:206:5: warning: passing argument 2 of 'Ql_SecureData_Store' from incompatible pointer type [enabled by default]
+     Ql_SecureData_Store(2, &record, sizeof(record));
+     ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:462:5: note: expected 'u8 *' but argument is of type 'struct <anonymous> *'
+ s32 Ql_SecureData_Store(u8 index , u8* pData, u32 len);
+     ^
+custom/proc_mqtt_task.c:211:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, MQTT_CLOSE, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c: In function 'mqtt_reset_proc':
+custom/proc_mqtt_task.c:223:3: warning: passing argument 4 of 'Ql_OS_SendMessage' makes integer from pointer without a cast [enabled by default]
+   Ql_OS_SendMessage(mqtt_task_id, MSG_ID_APP_TEST, NET_QUERY_STATE, NULL);
+   ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:195:5: note: expected 'u32' but argument is of type 'void *'
+ s32 Ql_OS_SendMessage(s32 destTaskId, u32 msgId, u32 param1, u32 param2);
+     ^
+custom/proc_mqtt_task.c:228:4: warning: passing argument 2 of 'Ql_SecureData_Store' from incompatible pointer type [enabled by default]
+    Ql_SecureData_Store(2, &record, sizeof(record));
+    ^
+In file included from include/ql_uart.h:38:0,
+                 from custom/main.h:3,
+                 from custom/proc_mqtt_task.c:2:
+include/ql_system.h:462:5: note: expected 'u8 *' but argument is of type 'struct <anonymous> *'
+ s32 Ql_SecureData_Store(u8 index , u8* pData, u32 len);
+     ^
+custom/proc_mqtt_task.c: At top level:
+custom/proc_mqtt_task.c:95:12: warning: 'ATResponse_Handler' defined but not used [-Wunused-function]
+ static s32 ATResponse_Handler(char* line, u32 len, void* userData)
+            ^
+custom/proc_mqtt_task.c:128:13: warning: 'net_query_proc' defined but not used [-Wunused-function]
+ static void net_query_proc(void)
+             ^
+custom/proc_mqtt_task.c: In function 'mqtt_send_data':
+custom/proc_mqtt_task.c:37:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^

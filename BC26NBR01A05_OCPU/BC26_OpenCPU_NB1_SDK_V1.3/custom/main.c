@@ -129,7 +129,7 @@ void proc_main_task(s32 taskId)
       case MSG_ID_RIL_READY:
         APP_DEBUG("<-- RIL is ready -->\r\n");
         Ql_RIL_Initialize();			
-				proc_mqtt_init();
+				
 				Ql_OS_SetEvent(sys_event_id, EVENT_RUNNING);
         break;
       case MSG_ID_URC_INDICATION:
@@ -170,7 +170,7 @@ void proc_main_task(s32 taskId)
 					case URC_IPADDR_IND:
 						break;
           default:
-            APP_DEBUG("<-- Other URC: type=%d\r\n", msg.param1);
+						APP_DEBUG("%s\t%d\t%x\r\n", __func__, __LINE__, msg.param1);
             break;
         }
         break;

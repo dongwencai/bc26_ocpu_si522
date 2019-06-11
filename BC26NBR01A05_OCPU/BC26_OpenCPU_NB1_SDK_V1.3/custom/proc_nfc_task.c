@@ -101,6 +101,8 @@ static void card_read_proc(void)
 			Ql_GetLocalTime(&s);
 			APP_DEBUG("%d-%d-%d %d:%d:%d\r\n", s.year, s.month, s.day, s.hour, s.minute, s.second);
 			mqtt_send_data(&buf[1], 1);
+//			Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, USR_MSG_SLEEP_ENABLE, 0);
+
 			break;
 		}
 	}
@@ -139,7 +141,7 @@ static void card_psm_proc(void)
 	si522_reset();
 	si522_edge_trigger_mode();
 //	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_STOP_E, 0);
-//	Ql_SleepEnable();
+	Ql_SleepEnable();
 
 }
 static void card_idle_proc(void)
