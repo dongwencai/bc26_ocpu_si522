@@ -813,7 +813,7 @@ static void OnURCHandler_MQTT_PUB_IND(const char* strURC, void* reserved)
 	char *ps, *pe;
 	atci_param_t pb;
 	
-//	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
+	APP_DEBUG("%s\t%s\r\n", __func__, strURC);
 	ps = Ql_strstr(strURC, "\r\n+QMTPUB:");
 	ps += 2;
 	pe = Ql_strstr(ps, "\r\n");
@@ -919,7 +919,7 @@ static void OnURCHandler_IPADDR_IND(const char* strURC, void* reserved)
 static void OnURCHandler_Undefined(const char* strURC, void* reserved)
 {
 //	APP_DEBUG("OnURCHandler_Undefined:%s\r\n", strURC);
-  Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_END, 0);
+//  Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_END, 0);
 }
 
 /*****************************************************************

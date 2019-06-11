@@ -85,7 +85,8 @@ static void Ql_GPIO_Toggle(Enum_PinName pinName)
 
 static void halt_check_timer(u32 timerId, void* param)
 {
-	Ql_Reset(0);
+	Ql_OS_SendMessage(main_task_id ,MSG_ID_URC_INDICATION, URC_SYS_END, 0);
+//	Ql_Reset(0);
 }
 
 static void mqtt_led_timer(u32 timerId, void* param)
@@ -101,7 +102,6 @@ void proc_main_task(s32 taskId)
 	char version[32] = {0};
 	Ql_SleepDisable();
   Ql_GetSDKVer(version, 32);
-	APP_DEBUG("version %s\r\n", version);
 	sys_event_id = Ql_OS_CreateEvent();
 	Ql_Timer_Register(halt_check_tmr_id, halt_check_timer, NULL);
 	Ql_Timer_Register(mqtt_led_tmr_id, mqtt_led_timer, NULL);
@@ -113,13 +113,14 @@ void proc_main_task(s32 taskId)
   ret = Ql_UART_Open(m_myUartPort, 115200, FC_NONE);
   if (ret < QL_RET_OK){
     Ql_Debug_Trace("Fail to open serial port[%d], ret=%d\r\n", m_myUartPort, ret);
-  }	
+  }		
+	APP_DEBUG("version %s\r\n", version);
 	atci_init(&m_myUartPort);
 	ret = Ql_Psm_Eint_Register(callback_psm_eint,NULL);
 	APP_DEBUG("psm_eint register , ret=%d\r\n",ret);
 	ret = Ql_GetPowerOnReason();
 	APP_DEBUG("power on reason, ret=%d\r\n",ret);
-	
+	Ql_Timer_Start(halt_check_tmr_id, 3000, TRUE);
 	tt_init = TRUE;
 	device_info_load();
   while(TRUE){

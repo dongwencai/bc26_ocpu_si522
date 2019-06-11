@@ -49,17 +49,16 @@ void proc_mqtt_init(void)
 		}
 	}
 	
-//	APP_DEBUG("%s\t%d\r\n", __func__, __LINE__);
-//	if(DEVICE_PARAM(bootnotification)){
-//		const char *fmt  = "bootNotification:type=%d,device_name=%s,version=%s";
-//		record.history = FALSE;	
-//		mqtt.state = NET_QUERY_STATE; 		
-//		mqtt.net_query_timeout = NET_QUERY_MAX_TIMES;
-//		Ql_sprintf(record.context, fmt, DEVICE_PARAM(type), DEVICE_PARAM(devicename),"v1.0.1");
-//		return;
-//	}
+	if(DEVICE_PARAM(bootnotification)){
+		const char *fmt  = "bootNotification:type=%d,device_name=%s,version=%s";
+		record.history = FALSE;	
+		mqtt.state = NET_QUERY_STATE; 		
+		mqtt.net_query_timeout = NET_QUERY_MAX_TIMES;
+		Ql_sprintf(record.context, fmt, DEVICE_PARAM(type), DEVICE_PARAM(devicename),"v1.0.1");
+//		Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_MQTT_LED_START, 0);
+		return;
+	}
 	
-	APP_DEBUG("%s\t%d\r\n", __func__, __LINE__);
 	Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, USR_MSG_CARD_ATACHE_E, 0);
 }
 
@@ -90,7 +89,7 @@ static void mqtt_idle_proc(void)
 	Ql_MEM_Free(pdata);
 	mqtt.state = NET_QUERY_STATE;
 	mqtt.net_query_timeout = NET_QUERY_MAX_TIMES;
-	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_MQTT_LED_START, 0);
+//	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_MQTT_LED_START, 0);
 	return;
 }
 
@@ -157,7 +156,7 @@ static void mqtt_publish_proc()
 		if(Ql_strstr(record.context, "bootNotification")){
 			uint8_t data = 0;
 			device_info_set(offsetof(device_info_t, bootnotification), &data, 1);
-			APP_DEBUG("%s\t%d\r\n", DEVICE_PARAM(bootnotification));
+			APP_DEBUG("%s\t%d\r\n", __func__, DEVICE_PARAM(bootnotification));
 		}else
 			{
 			if(record.history){

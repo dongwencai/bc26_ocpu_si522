@@ -57,7 +57,7 @@ static void card_search_proc(void)
 	uint8_t uid[6];
 	APP_DEBUG("CARD SEARCH\r\n");
 	
-	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_START_E, 0);
+//	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_START_E, 0);
 
 	#ifdef MANUAL_FIND_CARD
 	if(card_search(uid)){		
@@ -105,7 +105,7 @@ static void card_read_proc(void)
 		}
 	}
 	#endif
-	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_STOP_E, 0);
+//	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_STOP_E, 0);
 	return;
 }
 
@@ -135,11 +135,11 @@ static void card_authent_proc(void)
 static void card_psm_proc(void)
 {
 	APP_DEBUG("%s\t%d\r\n", __func__, __LINE__);
-	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_START_E, 0);
+//	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_START_E, 0);
 	si522_reset();
 	si522_edge_trigger_mode();
-	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_STOP_E, 0);
-	Ql_SleepEnable();
+//	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_STOP_E, 0);
+//	Ql_SleepEnable();
 
 }
 static void card_idle_proc(void)
@@ -181,7 +181,11 @@ static void spi_init(u8 spi_type)
 
 }
 
+static void card_bh_timer(u32 timerId, void* param)
+{
+	Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, USR_MSG_BH_E, 0);
 
+}
 
 
 void card_proc_timer(u32 timerId, void* param)
@@ -218,7 +222,7 @@ static void proc_nfc_init(void)
 	spi_init(1);
 	Ql_memset(&ccb, 0x00, sizeof(ccb));
 	ccb.nfc_check_tmr_id = 0x104;
-	Ql_Timer_Register(ccb.nfc_check_tmr_id, card_proc_timer, NULL);
+	Ql_Timer_Register(ccb.nfc_check_tmr_id, card_bh_timer, NULL);
 }
 
 void proc_nfc_task(s32 taskId)
@@ -226,11 +230,13 @@ void proc_nfc_task(s32 taskId)
 	uint8_t uid[4];
 	ST_MSG msg;
 	proc_nfc_init();
-//	Ql_Timer_Start(ccb.nfc_check_tmr_id, 200, TRUE);
+	Ql_Timer_Start(ccb.nfc_check_tmr_id, 3000, TRUE);
 	while(TRUE){
 		Ql_OS_GetMessage(&msg);		
 		APP_DEBUG("%s\t%d\t%x\r\n", __func__, __LINE__, msg.param1);
 		switch(msg.param1){
+			case USR_MSG_BH_E:
+				break;
 			case USR_MSG_CARD_ATACHE_E:
 				card_search_proc();
 				break;
