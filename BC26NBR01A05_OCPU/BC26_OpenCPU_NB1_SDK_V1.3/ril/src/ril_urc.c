@@ -40,6 +40,7 @@
 #include "ql_common.h"
 #include "ql_uart.h"
 #include "ql_type.h"
+#include "ril_mqtt.h"
 #include "ril_onenet.h"
 #include "ril_lwm2m.h"
 #include "ril_socket.h"
@@ -821,7 +822,8 @@ static void OnURCHandler_MQTT_PUB_IND(const char* strURC, void* reserved)
 		if(atci_param_parse(&pb, strURC, "+%[^:]")){
 			if(pb.param_cnt >= 3){
 				stat = Ql_atoi(pb.param[2]);
-				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_PUB, stat);
+				RIL_SOC_QMTPUB_SET_RES(stat);
+//				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_PUB, stat);
 			}
 		}
 	}
@@ -840,7 +842,8 @@ static void OnURCHandler_MQTT_SUB_IND(const char* strURC, void* reserved)
 		if(atci_param_parse(&pb, strURC, "+%[^:]")){
 			if(pb.param_cnt >= 3){
 				stat = Ql_atoi(pb.param[2]);
-				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_SUB, stat);
+				RIL_SOC_QMTSUB_SET_RES(stat);
+//				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_SUB, stat);
 			}
 		}
 	}
@@ -857,7 +860,8 @@ static void OnURCHandler_MQTT_OPEN_IND(const char* strURC, void* reserved)
 	if(ps && pe){
 		if(atci_param_parse(&pb, strURC, "+%[^:]")){
 			stat = Ql_atoi(pb.param[1]);
-			Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_OPEN, stat);
+			RIL_SOC_QMTOPEN_SET_RES(stat);
+//			Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_OPEN, stat);
 		}
 	}
 }
@@ -874,10 +878,12 @@ static void OnURCHandler_MQTT_CONN_IND(const char* strURC, void* reserved)
 		if(atci_param_parse(&pb, strURC, "+%[^:]")){
 			if(pb.param_cnt == 3){
 				stat = Ql_atoi(pb.param[1]);
-				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CONN, stat);
+				RIL_SOC_QMTCONN_SET_RES(stat);
+//				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CONN, stat);
 			}else{
 				stat = Ql_atoi(pb.param[1]);
-				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CONN_IND, stat);
+				RIL_SOC_QMTCONN_SET_URC(stat);
+//				Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CONN_IND, stat);
 			}
 		}
 	}
@@ -896,7 +902,8 @@ static void OnURCHandler_MQTT_CLOSE_IND(const char* strURC, void* reserved)
 	if(ps && pe){
 		if(atci_param_parse(&pb, strURC, "+%[^:]")){
 			stat = Ql_atoi(pb.param[1]);
-			Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CLOSE, stat);
+			RIL_SOC_QMTCLOSE_SET_RESP(stat);
+//			Ql_OS_SendMessage(URC_RCV_TASK_ID, MSG_ID_URC_INDICATION, URC_MQTT_CLOSE, stat);
 		}
 	}
 

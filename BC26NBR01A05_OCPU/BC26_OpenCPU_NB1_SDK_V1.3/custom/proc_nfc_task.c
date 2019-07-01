@@ -74,14 +74,14 @@ static void card_search_proc(void)
 			return;
 		}
 	}
-	Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, USR_MSG_SLEEP_ENABLE, 0);
+	enter_psm_mode();
 	#endif
 }
 
 static void card_read_proc(void)
 {
 	ST_Time s;
-	uint8_t buf[16];
+	uint8_t buf[16], frame[256], length;
 	
 	APP_DEBUG("CARD READ\r\n");
 	#ifdef MANUAL_FIND_CARD
@@ -98,11 +98,15 @@ static void card_read_proc(void)
 	for(uint8_t i = 0; i < 3; i ++){
 		if(si522_card_block_read(buf, 0x0c) == NFC_SUCCESS){
 			APP_DEBUG("card no:%d\r\n", buf[1]);
-			Ql_GetLocalTime(&s);
-			APP_DEBUG("%d-%d-%d %d:%d:%d\r\n", s.year, s.month, s.day, s.hour, s.minute, s.second);
-			mqtt_send_data(&buf[1], 1);
-//			Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, USR_MSG_SLEEP_ENABLE, 0);
-
+			if(buf[1] != 0x00){
+				mqtt_send_data(&buf[1], 1);
+			}else{
+				length = strlen(&buf[2]);
+				if(length > 0 && length < 14){
+					mqtt_send_data(&buf[2], length);
+				}
+			}
+			Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_BEEP_E, 0);
 			break;
 		}
 	}
@@ -130,19 +134,16 @@ static void card_authent_proc(void)
 			return;
 		}
 	}
-	Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, USR_MSG_SLEEP_ENABLE, 0);
+	enter_psm_mode();
 	#endif
 }
 
 static void card_psm_proc(void)
 {
 	APP_DEBUG("%s\t%d\r\n", __func__, __LINE__);
-//	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_START_E, 0);
 	si522_reset();
 	si522_edge_trigger_mode();
-//	Ql_OS_SendMessage(main_task_id ,MSG_ID_APP_TEST, USR_MSG_HALT_CHECK_STOP_E, 0);
 	Ql_SleepEnable();
-
 }
 static void card_idle_proc(void)
 {
@@ -186,7 +187,6 @@ static void spi_init(u8 spi_type)
 static void card_bh_timer(u32 timerId, void* param)
 {
 	Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, USR_MSG_BH_E, 0);
-
 }
 
 
@@ -195,7 +195,6 @@ void card_proc_timer(u32 timerId, void* param)
 	switch(ccb.step){
 		case CARD_INIT:
 			APP_DEBUG("CARD_INIT\r\n");
-//				si522_init();
 			si522_manual();
 			ccb.step = CARD_SEARCH;
 			break;
@@ -218,13 +217,14 @@ void card_proc_timer(u32 timerId, void* param)
 			break;
 	}
 }
-
+void enter_psm_mode(void)
+{
+	Ql_OS_SendMessage(nfc_task_id ,MSG_ID_APP_TEST, USR_MSG_SLEEP_ENABLE, 0);
+}
 static void proc_nfc_init(void)
 {
 	spi_init(1);
 	Ql_memset(&ccb, 0x00, sizeof(ccb));
-	ccb.nfc_check_tmr_id = 0x104;
-	Ql_Timer_Register(ccb.nfc_check_tmr_id, card_bh_timer, NULL);
 }
 
 void proc_nfc_task(s32 taskId)
@@ -232,7 +232,6 @@ void proc_nfc_task(s32 taskId)
 	uint8_t uid[4];
 	ST_MSG msg;
 	proc_nfc_init();
-	Ql_Timer_Start(ccb.nfc_check_tmr_id, 3000, TRUE);
 	while(TRUE){
 		Ql_OS_GetMessage(&msg);		
 		APP_DEBUG("%s\t%d\t%x\r\n", __func__, __LINE__, msg.param1);

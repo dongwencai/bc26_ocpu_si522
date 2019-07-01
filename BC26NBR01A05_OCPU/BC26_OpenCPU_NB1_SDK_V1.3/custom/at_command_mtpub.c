@@ -1,4 +1,4 @@
-#include <string.h>
+#include <ql_stdlib.h>
 #include "device_info.h"
 #include "at_command_mtpub.h"
 

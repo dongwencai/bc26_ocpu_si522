@@ -38,6 +38,7 @@
 #include "ql_system.h"
 #include "ql_timer.h"
 #include "si522.h"
+#include "ql_pwm.h"
 #include <ql_type.h>
 #include "ril_mqtt.h"
 #include "atci_main.h"
@@ -45,16 +46,16 @@
 #include "ril_network.h"
 #include "proc_mqtt_task.h"
 
-s32 sys_event_id;
+u32 sys_event_id, main_ticks;
 static bool tt_init = FALSE;
 
 #if DEBUG_ENABLE > 0
 char debug_buffer[DBG_BUF_LEN];
 #endif
 
-static u32 halt_check_tmr_id = 0x105;
+static u32 main_ticks_tmr_id = 0x105;
 static u32 mqtt_led_tmr_id = 0x106;
-
+static u32 beep_tmr_id = 0x110;
 #define SERIAL_RX_BUFFER_LEN  2048
 static u8 m_RxBuf_Uart[SERIAL_RX_BUFFER_LEN];
 static Enum_SerialPort m_myUartPort  = UART_PORT0;
@@ -83,30 +84,45 @@ static void Ql_GPIO_Toggle(Enum_PinName pinName)
 }
 
 
-static void halt_check_timer(u32 timerId, void* param)
+static void main_ticks_timer(u32 timerId, void* param)
 {
-	Ql_OS_SendMessage(main_task_id ,MSG_ID_URC_INDICATION, URC_SYS_END, 0);
-//	Ql_Reset(0);
+	main_ticks ++;
+}
+
+u32 main_ticks_get(void)
+{
+	return main_ticks;
 }
 
 static void mqtt_led_timer(u32 timerId, void* param)
 {
 	Ql_GPIO_Toggle(PINNAME_GPIO2);
 }
+static void beep_timer(u32 timerId, void* param)
+{
+	Ql_PWM_Output(PINNAME_GPIO3, FALSE);
+}
 
+static void gpio_pwm_init(void)
+{
+	Ql_GPIO_Init(PINNAME_GPIO2, PINDIRECTION_OUT, PINLEVEL_LOW, PINPULLSEL_DISABLE);
+	Ql_PWM_Init(PINNAME_GPIO3, PWMSOURCE_32K, PWMSOURCE_DIV2, 2, 2);
+}
 
 void proc_main_task(s32 taskId)
 { 
   s32 ret;
   ST_MSG msg;
-	char version[32] = {0};
+	if(sys_event_id == 0){
+		sys_event_id = Ql_OS_CreateEvent();
+	}
+	
 	Ql_SleepDisable();
-  Ql_GetSDKVer(version, 32);
-	sys_event_id = Ql_OS_CreateEvent();
-	Ql_Timer_Register(halt_check_tmr_id, halt_check_timer, NULL);
+	Ql_Timer_Register(main_ticks_tmr_id, main_ticks_timer, NULL);
 	Ql_Timer_Register(mqtt_led_tmr_id, mqtt_led_timer, NULL);
-	Ql_GPIO_Init(PINNAME_GPIO2, PINDIRECTION_OUT, PINLEVEL_LOW, PINPULLSEL_DISABLE);
+	Ql_Timer_Register(beep_tmr_id, beep_timer, NULL);
   ret = Ql_UART_Register(m_myUartPort, CallBack_UART_Hdlr, NULL);
+	Ql_Timer_Start(main_ticks_tmr_id, 200, FALSE);
   if (ret < QL_RET_OK){
     Ql_Debug_Trace("Fail to register serial port[%d], ret=%d\r\n", m_myUartPort, ret);
   }
@@ -114,13 +130,13 @@ void proc_main_task(s32 taskId)
   if (ret < QL_RET_OK){
     Ql_Debug_Trace("Fail to open serial port[%d], ret=%d\r\n", m_myUartPort, ret);
   }		
-	APP_DEBUG("version %s\r\n", version);
+	gpio_pwm_init();
 	atci_init(&m_myUartPort);
-	ret = Ql_Psm_Eint_Register(callback_psm_eint,NULL);
-	APP_DEBUG("psm_eint register , ret=%d\r\n",ret);
+	
+	Ql_Psm_Eint_Register(callback_psm_eint,NULL);
 	ret = Ql_GetPowerOnReason();
 	APP_DEBUG("power on reason, ret=%d\r\n",ret);
-	Ql_Timer_Start(halt_check_tmr_id, 3000, TRUE);
+	Ql_Timer_Start(main_ticks_tmr_id, 3000, TRUE);	
 	tt_init = TRUE;
 	device_info_load();
   while(TRUE){
@@ -129,7 +145,6 @@ void proc_main_task(s32 taskId)
       case MSG_ID_RIL_READY:
         APP_DEBUG("<-- RIL is ready -->\r\n");
         Ql_RIL_Initialize();			
-				
 				Ql_OS_SetEvent(sys_event_id, EVENT_RUNNING);
         break;
       case MSG_ID_URC_INDICATION:
@@ -176,14 +191,10 @@ void proc_main_task(s32 taskId)
         break;
 			case MSG_ID_APP_TEST:
 				switch(msg.param1){					
-					case USR_MSG_HALT_CHECK_STOP_E:
-						APP_DEBUG("halt check stop\r\n");
-						Ql_Timer_Stop(halt_check_tmr_id);
+					case USR_MSG_BEEP_E:
+						Ql_PWM_Output(PINNAME_GPIO3, TRUE);
+						Ql_Timer_Start(beep_tmr_id, 1000, FALSE);
 						break;
-					case USR_MSG_HALT_CHECK_START_E:
-						APP_DEBUG("halt check start\r\n");
-						Ql_Timer_Start(halt_check_tmr_id, 2000, FALSE);
-						break;						
 					case USR_MSG_MQTT_LED_STOP:
 						Ql_Timer_Stop(mqtt_led_tmr_id);
 						Ql_GPIO_SetLevel(PINNAME_GPIO2, PINLEVEL_LOW);

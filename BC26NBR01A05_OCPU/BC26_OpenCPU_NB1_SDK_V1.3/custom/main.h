@@ -10,8 +10,7 @@ typedef enum{
 	USR_MSG_CARD_AUTHENT_E,
 	USR_MSG_CARD_READ_E,
 	USR_MSG_SLEEP_ENABLE,
-	USR_MSG_HALT_CHECK_START_E,
-	USR_MSG_HALT_CHECK_STOP_E,
+	USR_MSG_BEEP_E,
 	USR_MSG_MQTT_LED_START,
 	USR_MSG_MQTT_LED_STOP,
 	USR_MSG_END,
@@ -25,10 +24,9 @@ extern char debug_buffer[DBG_BUF_LEN];;
 #define APP_DEBUG(FORMAT,...) do{\
     Ql_memset(debug_buffer, 0, DBG_BUF_LEN);\
     Ql_sprintf(debug_buffer,FORMAT,##__VA_ARGS__); \
-    if (UART_PORT2 == (DEBUG_PORT)) \
-    {\
+    if (UART_PORT2 == (DEBUG_PORT)){\
         Ql_Debug_Trace(debug_buffer);\
-    } else {\
+    }else{\
         Ql_UART_Write((Enum_SerialPort)(DEBUG_PORT), (u8*)(debug_buffer), Ql_strlen((const char *)(debug_buffer)));\
     }\
 	}while(0)
@@ -49,5 +47,7 @@ extern char debug_buffer[DBG_BUF_LEN];;
 #define EVENT_MQTT_SUB_RESP	(1 << 12)
 #define EVENT_MQTT_SUB_UCR	(1 << 13)
 #define EVENT_MQTT_CLOSE_RESP (1 << 14)
-extern s32 sys_event_id;
+
+extern u32 sys_event_id;
+extern u32 main_ticks_get(void);
 #endif
